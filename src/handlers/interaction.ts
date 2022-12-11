@@ -13,13 +13,15 @@ export const registeredChatInputCommands = new Map<string, ChatInputCommand>();
 export const registeredButtonComponents = new Map<string, ButtonComponent>();
 export const registeredStringSelectComponents = new Map<string, StringSelectComponent>();
 
-const commands = await readdir("./src/commands/chatInput");
-for (const command of commands) {
-  const { default: ChatInputCommand } = await import(
-    `../commands/chatInput/${command.split(".ts")[0]}.js`
-  );
-  registeredChatInputCommands.set(ChatInputCommand.name, ChatInputCommand);
-}
+(async () => {
+  const commands = await readdir("./src/commands/chatInput");
+  for (const command of commands) {
+    const { default: ChatInputCommand } = await import(
+      `../commands/chatInput/${command.split(".ts")[0]}.js`
+    );
+    registeredChatInputCommands.set(ChatInputCommand.name, ChatInputCommand);
+  }
+})();
 
 export default async function interactionHandler(interaction: Interaction): Promise<void> {
   if (interaction.isChatInputCommand()) {
