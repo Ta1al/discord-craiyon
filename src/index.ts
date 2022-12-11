@@ -3,7 +3,7 @@ import { Client, IntentsBitField } from "discord.js";
 import messageHandler from "./handlers/message.js";
 import interactionHandler from "./handlers/interaction.js";
 import { registeredChatInputCommands } from "./handlers/interaction.js";
-import { connect } from "mongoose";
+import mongoose, { connect } from "mongoose";
 const { TOKEN, GUILD_ID, MONGO_URI } = process.env;
 
 checkEnv();
