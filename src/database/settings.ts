@@ -10,7 +10,7 @@ const SettingsSchema = new Schema<Settings>({
 
 export default model<Settings>("settings", SettingsSchema);
 
-interface Settings {
+export interface Settings {
   guildId: Snowflake;
   channels: Snowflake[];
   whitelistedUsers: Snowflake[];
