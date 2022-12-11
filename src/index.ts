@@ -15,7 +15,8 @@ const client = new Client({
 client.on("ready", async client => {
   console.log(`Logged in as ${client.user.tag}!`);
 
-  connect(MONGO_URI!)
+  mongoose.set("strictQuery", false);
+  await connect(MONGO_URI!)
     .then(() => console.log("Connected to MongoDB!"))
     .catch(console.error);
 
