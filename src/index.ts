@@ -20,6 +20,9 @@ client.on("ready", async client => {
     .then(() => console.log("Connected to MongoDB!"))
     .catch(console.error);
 
+  const settings = await SettingsModel.findOne({ guildId: guild!.id });
+  if (!settings) await SettingsModel.create({ guildId: guild!.id });
+
   const commands = Array.from(registeredChatInputCommands).map(([name, command]) => ({
     name,
     description: command.description,
