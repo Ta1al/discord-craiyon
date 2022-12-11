@@ -3,9 +3,9 @@ import { Schema, model } from "mongoose";
 
 const SettingsSchema = new Schema<Settings>({
   guildId: { type: String, required: true },
-  channels: { type: [String], required: true },
-  whitelistedUsers: { type: [String], required: true },
-  sessionToken: { type: String, required: true }
+  channels: [String],
+  whitelistedUsers: [String],
+  sessionToken: { type: String, default: process.env.SESSION_TOKEN }
 });
 
 export default model<Settings>("settings", SettingsSchema);
