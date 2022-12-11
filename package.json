@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Discord integration of ChatGPT",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "start": "node .",
     "start:watch": "nodemon . --watch dist",
@@ -26,5 +27,8 @@
     "chatgpt": "^2.0.6",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0-dev.20221211"
   }
 }
