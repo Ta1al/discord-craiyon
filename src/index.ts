@@ -5,6 +5,8 @@ import interactionHandler from "./handlers/interaction.js";
 import { registeredChatInputCommands } from "./handlers/interaction.js";
 const { TOKEN, GUILD_ID } = process.env;
 
+if (!GUILD_ID) throw new Error("GUILD_ID is not defined in .env file");
+
 const client = new Client({
   intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages]
 });
@@ -12,7 +14,6 @@ const client = new Client({
 client.on("ready", async client => {
   console.log(`Logged in as ${client.user.tag}!`);
 
-  const guild = client.guilds.cache.get(GUILD_ID!);
   const commands = Array.from(registeredChatInputCommands).map(([name, command]) => ({
     name,
     description: command.description,
@@ -21,10 +22,13 @@ client.on("ready", async client => {
     dmPermission: command.dmPermission
   }));
 
-  (guild ?? client.application).commands
+  const guild = client.guilds.cache.get(GUILD_ID!);
+  guild?.commands
     .set(commands)
     .then(c =>
-      console.log(`Registered ${c.size} command(s) ${guild ? `for guild ${guild.name}` : "globally"}`)
+      console.log(
+        `Registered ${c.size} command(s) ${guild ? `for guild ${guild.name}` : "globally"}`
+      )
     )
     .catch(console.error);
 });
