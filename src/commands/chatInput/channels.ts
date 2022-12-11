@@ -40,7 +40,7 @@ async function listChannels(interaction: ChatInputCommandInteraction, channels: 
     .setCustomId(interaction.id)
     .setPlaceholder("Select channels to remove")
     .setMinValues(1)
-    .setMaxValues(25)
+    .setMaxValues(channels.length)
     .addOptions(channels.map((id, i) => ({ label: `${i + 1}. ${id}`, value: id })));
 
   return void interaction.editReply({
@@ -84,7 +84,7 @@ function registerComponent(interaction: ChatInputCommandInteraction) {
         { $pull: { channels: { $in: values } } }
       );
 
-      return void selectInteraction.update({
+      return void interaction.editReply({
         content: `✅ Removed ${values.length} channel${values.length === 1 ? "" : "s"}`,
         components: []
       })
