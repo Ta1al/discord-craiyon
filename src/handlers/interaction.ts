@@ -4,12 +4,14 @@ import {
   ButtonInteraction,
   PermissionResolvable,
   ChatInputCommandInteraction,
-  ApplicationCommandOptionData
+  ApplicationCommandOptionData,
+  StringSelectMenuInteraction
 } from "discord.js";
 import { readdir } from "fs/promises";
 
 export const registeredChatInputCommands = new Map<string, ChatInputCommand>();
 export const registeredButtonComponents = new Map<string, ButtonComponent>();
+export const registeredStringSelectComponents = new Map<string, StringSelectComponent>();
 
 const commands = await readdir("./src/commands/chatInput");
 for (const command of commands) {
@@ -52,6 +54,21 @@ export default async function interactionHandler(interaction: Interaction): Prom
 
     return void component.execute(interaction).catch(console.error);
   }
+
+  if (interaction.isStringSelectMenu()) {
+    const component = registeredStringSelectComponents.get(interaction.customId);
+    if (!component) {
+      return void interaction.reply({ content: "❌ Component not found.", ephemeral: true });
+    }
+    if (component.allowedUsers !== "all" && !component.allowedUsers.includes(interaction.user.id)) {
+      return void interaction.reply({
+        content: "❌ You are not allowed to use this component.",
+        ephemeral: true
+      });
+    }
+
+    return void component.execute(interaction).catch(console.error);
+  }
 }
 
 export interface ChatInputCommand {
@@ -64,9 +81,16 @@ export interface ChatInputCommand {
   execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
 }
 
-export interface ButtonComponent {
+interface BaseComponent {
   allowedUsers: "all" | Snowflake[];
+}
+
+export interface ButtonComponent extends BaseComponent {
   execute: (interaction: ButtonInteraction) => Promise<void>;
+}
+
+export interface StringSelectComponent extends BaseComponent {
+  execute: (interaction: StringSelectMenuInteraction) => Promise<void>;
 }
 
 async function checkPermissions(
