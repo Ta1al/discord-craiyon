@@ -1,0 +1,30 @@
+{
+  "name": "disgpt",
+  "version": "0.0.1",
+  "description": "Discord integration of ChatGPT",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node .",
+    "start:watch": "nodemon . --watch dist",
+    "build": "tsc",
+    "build:watch": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ta1al/disgpt.git"
+  },
+  "keywords": [
+    "chatgpt"
+  ],
+  "author": "Ta1al",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ta1al/disgpt/issues"
+  },
+  "homepage": "https://github.com/Ta1al/disgpt#readme",
+  "dependencies": {
+    "chatgpt": "^2.0.6",
+    "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3"
+  }
+}
