@@ -1,10 +1,10 @@
 import {
+  Snowflake,
   Interaction,
-  ApplicationCommandOptionData,
+  ButtonInteraction,
   PermissionResolvable,
   ChatInputCommandInteraction,
-  Snowflake,
-  ButtonInteraction
+  ApplicationCommandOptionData
 } from "discord.js";
 import { readdir } from "fs/promises";
 
@@ -19,14 +19,38 @@ for (const command of commands) {
   registeredChatInputCommands.set(ChatInputCommand.name, ChatInputCommand);
 }
 
-export default function interactionHandler(interaction: Interaction): void {
-  try {
-    if (interaction.isChatInputCommand())
-      return void registeredChatInputCommands.get(interaction.commandName)?.execute(interaction);
-    if (interaction.isButton())
-      return void registeredButtonComponents.get(interaction.customId)?.execute(interaction);
-  } catch (error) {
-    console.error(error);
+export default async function interactionHandler(interaction: Interaction): Promise<void> {
+  if (interaction.isChatInputCommand()) {
+    const command = registeredChatInputCommands.get(interaction.commandName);
+    if (!command) {
+      return void interaction.reply({ content: "❌ Command not found.", ephemeral: true });
+    }
+    if (command.permissionCheck) {
+      const hasPermission = await checkPermissions(command, interaction);
+
+      if (!hasPermission) {
+        return void interaction.reply({
+          content: "❌ You are not allowed to use this command.",
+          ephemeral: true
+        });
+      }
+    }
+    return void command.execute(interaction).catch(console.error);
+  }
+
+  if (interaction.isButton()) {
+    const component = registeredButtonComponents.get(interaction.customId);
+    if (!component) {
+      return void interaction.reply({ content: "❌ Component not found.", ephemeral: true });
+    }
+    if (component.allowedUsers !== "all" && !component.allowedUsers.includes(interaction.user.id)) {
+      return void interaction.reply({
+        content: "❌ You are not allowed to use this component.",
+        ephemeral: true
+      });
+    }
+
+    return void component.execute(interaction).catch(console.error);
   }
 }
 
@@ -36,11 +60,20 @@ export interface ChatInputCommand {
   options?: ApplicationCommandOptionData[];
   defaultMemberPermissions?: PermissionResolvable;
   dmPermission?: boolean;
+  permissionCheck?: "owner" | ((interaction: ChatInputCommandInteraction) => Promise<boolean>);
   execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
 }
 
 export interface ButtonComponent {
-  allowedUsers?: "all" | Snowflake[];
+  allowedUsers: "all" | Snowflake[];
   execute: (interaction: ButtonInteraction) => Promise<void>;
+}
+
+async function checkPermissions(
+  command: ChatInputCommand,
+  interaction: ChatInputCommandInteraction
+) {
+  if (command.permissionCheck === "owner") return interaction.user.id === process.env.OWNER_ID;
+  else return await command.permissionCheck!(interaction);
 }
 
