@@ -9,7 +9,8 @@ const { TOKEN, GUILD_ID, MONGO_URI, SESSION_TOKEN } = process.env;
 checkEnv();
 
 const client = new Client({
-  intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages]
+  intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages],
+  allowedMentions: { parse: [], repliedUser: true },
 });
 
 client.on("ready", async client => {
