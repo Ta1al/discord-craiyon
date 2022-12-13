@@ -1,22 +1,19 @@
-import { ChatGPTAPI } from "chatgpt";
+import { ChatGPTAPI, ChatGPTConversation, getBrowser, getOpenAIAuth, OpenAIAuth } from "chatgpt";
 import { AttachmentBuilder, Message } from "discord.js";
 
-let controller: AbortController | undefined;
-let token = process.env.TOKEN!;
-let api = new ChatGPTAPI({
-  sessionToken: token
-});
-let conversation = api.getConversation();
+const { OPENAI_EMAIL, OPENAI_PASSWORD } = process.env;
+let openAIAuth: OpenAIAuth;
+let api: ChatGPTAPI;
+let conversation: ChatGPTConversation;
 let processing = false;
-export default async function chatgpt(message: Message, newToken: string) {
-  if (newToken !== token) {
-    token = newToken;
-    api = new ChatGPTAPI({
-      sessionToken: token
-    });
-    conversation = api.getConversation();
-  }
 
+(async () => {
+  openAIAuth = await getAuth();
+  api = new ChatGPTAPI(openAIAuth);
+  conversation = api.getConversation();
+})();
+
+export default async function chatgpt(message: Message) {
   if (processing) return message.reply("⌛ I'm processing another message, please wait.");
   else {
     processing = true;
@@ -31,16 +28,12 @@ export default async function chatgpt(message: Message, newToken: string) {
           msg.edit(makeResponse(partialResponse));
         }
       }, 1500);
-      controller = new AbortController();
       const fullResponse = await conversation.sendMessage(message.content, {
         timeoutMs: 5 * 60 * 1000,
-        abortSignal: controller.signal,
         onProgress: partial => {
           partialResponse = partial;
         }
       });
-
-      
 
       clearInterval(interval);
       setTimeout(() => {
@@ -50,7 +43,6 @@ export default async function chatgpt(message: Message, newToken: string) {
       console.error(error);
       await msg.edit("❌ An error occurred while processing your message.");
     } finally {
-      controller = undefined;
       processing = false;
     }
   }
@@ -67,3 +59,16 @@ function makeResponse(answer: string) {
   }
   return response;
 }
+
+async function getAuth() {
+  if (!OPENAI_EMAIL || !OPENAI_PASSWORD) {
+    throw new Error("OPENAI_EMAIL and OPENAI_PASSWORD environment variables are required.");
+  }
+  const browser = await getBrowser();
+  return await getOpenAIAuth({
+    email: OPENAI_EMAIL,
+    password: OPENAI_PASSWORD,
+    browser
+  });
+}
+
