@@ -15,7 +15,7 @@ const command: ChatInputCommand = {
     {
       type: ApplicationCommandOptionType.Channel,
       name: "channel",
-      description: "The channel to add"
+      description: "The channel to add/remove"
     }
   ],
   dmPermission: false,
@@ -26,27 +26,26 @@ const command: ChatInputCommand = {
     let settings = await SettingsModel.findOne({ guildId: interaction.guildId });
     if (!settings) settings = await SettingsModel.create({ guildId: interaction.guildId });
 
-    if (channel) return void addChannel(interaction, settings, channel);
-    else return void listChannels(interaction, settings.channels);
+    if (channel) {
+      if (settings.channels.includes(channel.id)) {
+        await SettingsModel.updateOne(
+          { guildId: interaction.guildId },
+          { $pull: { channels: channel.id } }
+        );
+        return void respond(interaction, "🚮 Channel removed");
+      } else return void addChannel(interaction, settings, channel);
+    } else return void listChannels(interaction, settings.channels);
   }
 };
 
 export default command;
 
 async function listChannels(interaction: ChatInputCommandInteraction, channels: Snowflake[]) {
-  if (!channels.length) return respond(interaction, "❌ No channels are whitelisted")
+  if (!channels.length) return respond(interaction, "❌ No channels are whitelisted");
   const channelList = channels.map((id, i) => `\`${i + 1}.\` <#${id}>`).join("\n");
-  const selectMenu = new StringSelectMenuBuilder()
-    .setCustomId(interaction.id)
-    .setPlaceholder("Select channels to remove")
-    .setMinValues(1)
-    .setMaxValues(channels.length)
-    .addOptions(channels.map((id, i) => ({ label: `${i + 1}. ${id}`, value: id })));
-
   return void interaction.editReply({
-    content: `Whitelisted Channels:\n${channelList}`,
-    components: [{ type: 1, components: [selectMenu] }],
-  }).then(() => registerComponent(interaction));
+    content: `Whitelisted Channels:\n${channelList}`
+  });
 }
 
 async function addChannel(
@@ -61,7 +60,6 @@ async function addChannel(
   if (settings.channels.length === 25)
     return void respond(interaction, "❌ You can't have more than 25 whitelisted channels");
 
-
   await SettingsModel.updateOne(
     { guildId: interaction.guildId },
     { $push: { channels: channel.id } }
@@ -71,23 +69,4 @@ async function addChannel(
 
 async function respond(interaction: ChatInputCommandInteraction, content: string) {
   await interaction.editReply({ content });
-}
-
-function registerComponent(interaction: ChatInputCommandInteraction) {
-  registeredStringSelectComponents.set(interaction.id, {
-    allowedUsers: [interaction.user.id],
-    execute: async selectInteraction => {
-      const { values } = selectInteraction;
-      await selectInteraction.deferUpdate();
-      await SettingsModel.updateOne(
-        { guildId: interaction.guildId },
-        { $pull: { channels: { $in: values } } }
-      );
-
-      return void interaction.editReply({
-        content: `✅ Removed ${values.length} channel${values.length === 1 ? "" : "s"}`,
-        components: []
-      })
-    }
-  });
 }
