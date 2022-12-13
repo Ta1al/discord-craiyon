@@ -10,9 +10,8 @@ const command: MessageCommand = {
     if (
       settings?.channels.includes(message.channel.id) &&
       settings?.whitelistedUsers.includes(message.author.id)
-    ) {
-      chatgpt(message, settings.sessionToken);
-    }
+    )
+      return void chatgpt(message);
   }
 };
 
