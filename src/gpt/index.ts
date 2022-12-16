@@ -1,16 +1,18 @@
-import { ChatGPTAPI, ChatGPTConversation, getBrowser, getOpenAIAuth, OpenAIAuth } from "chatgpt";
+import { ChatGPTAPIBrowser } from "chatgpt";
 import { AttachmentBuilder, Message } from "discord.js";
 
 const { OPENAI_EMAIL, OPENAI_PASSWORD } = process.env;
-let openAIAuth: OpenAIAuth;
-let api: ChatGPTAPI;
-let conversation: ChatGPTConversation;
-let processing = false;
+if (!OPENAI_EMAIL || !OPENAI_PASSWORD) {
+  throw new Error("OPENAI_EMAIL and OPENAI_PASSWORD environment variables are required.");
+}
+let api: ChatGPTAPI, processing: boolean;
 
 (async () => {
-  openAIAuth = await getAuth();
-  api = new ChatGPTAPI(openAIAuth);
-  conversation = api.getConversation();
+  api = new ChatGPTAPIBrowser({
+    email: process.env.OPENAI_EMAIL,
+    password: process.env.OPENAI_PASSWORD
+  });
+  await api.init();
 })();
 
 export default async function chatgpt(message: Message) {
@@ -28,7 +30,7 @@ export default async function chatgpt(message: Message) {
           msg.edit(makeResponse(partialResponse));
         }
       }, 1500);
-      const fullResponse = await conversation.sendMessage(message.content, {
+      const fullResponse = await api.sendMessage(message.content, {
         timeoutMs: 5 * 60 * 1000,
         onProgress: partial => {
           partialResponse = partial;
@@ -58,17 +60,5 @@ function makeResponse(answer: string) {
     response = { content: "", files: [file] };
   }
   return response;
-}
-
-async function getAuth() {
-  if (!OPENAI_EMAIL || !OPENAI_PASSWORD) {
-    throw new Error("OPENAI_EMAIL and OPENAI_PASSWORD environment variables are required.");
-  }
-  const browser = await getBrowser();
-  return await getOpenAIAuth({
-    email: OPENAI_EMAIL,
-    password: OPENAI_PASSWORD,
-    browser
-  });
 }
 
