@@ -53,6 +53,5 @@ function checkEnv() {
   if (!TOKEN) throw new Error("TOKEN is not defined in .env file");
   if (!GUILD_ID) throw new Error("GUILD_ID is not defined in .env file");
   if (!MONGO_URI) throw new Error("MONGO_URI is not defined in .env file");
-  if (!SESSION_TOKEN) throw new Error("SESSION_TOKEN is not defined in .env file");
 }
 
