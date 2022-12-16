@@ -24,23 +24,9 @@ export default async function chatgpt(message: Message) {
     try {
       await api.ensureAuth();
       message.channel.sendTyping();
-      let partialResponse: string;
-      const interval = setInterval(function () {
-        if (typeof partialResponse !== "undefined") {
-          msg.edit(makeResponse(partialResponse));
-        }
-      }, 1500);
-      const fullResponse = await api.sendMessage(message.content, {
-        timeoutMs: 5 * 60 * 1000,
-        onProgress: partial => {
-          partialResponse = partial;
-        }
-      });
+      const fullResponse = await api.sendMessage(message.content, { timeoutMs: 5 * 60 * 1000 });
 
-      clearInterval(interval);
-      setTimeout(() => {
-        msg.edit(makeResponse(fullResponse));
-      }, 1500);
+      msg.edit(makeResponse(fullResponse));
     } catch (error) {
       console.error(error);
       await msg.edit("❌ An error occurred while processing your message.");
