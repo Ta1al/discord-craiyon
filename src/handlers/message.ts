@@ -2,13 +2,15 @@ import { Message } from "discord.js";
 import { readdir } from "fs/promises";
 
 export const registeredMessageCommands = new Map<string, MessageCommand>();
-const commands = await readdir("./src/commands/message", { withFileTypes: false });
-for (const command of commands) {
-  const { default: MessageCommand } = await import(
-    `../commands/message/${command.split(".ts")[0]}.js`
-  );
-  registeredMessageCommands.set(MessageCommand.name, MessageCommand);
-}
+(async () => {
+  const commands = await readdir("./src/commands/message");
+  for (const command of commands) {
+    const { default: messageCommand } = await import(
+      `../commands/chatInput/${command.split(".")[0]}.js`
+    );
+    registeredMessageCommands.set(messageCommand.name, messageCommand.command);
+  }
+})();
 
 export default async function messageHandler(message: Message): Promise<void> {
   if (message.author.bot) return;
@@ -28,6 +30,6 @@ export interface MessageCommand {
 }
 
 function removeMention(message: Message<boolean>): string {
-  return message.content.replace("<@" + message.client.user.id + ">", "").trim();
+  return message.content.replace(`<@${message.client.user.id}>`, "").trim();
 }
 
