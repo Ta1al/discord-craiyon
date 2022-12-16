@@ -22,10 +22,21 @@ export default async function chatgpt(message: Message) {
 
     const msg = await message.reply("⌛ Processing...");
     try {
+      let partialResponse: string;
       message.channel.sendTyping();
-      const fullResponse = await api.sendMessage(message.content, { timeoutMs: 5 * 60 * 1000 });
-
-      msg.edit(makeResponse(fullResponse));
+      const interval = setInterval(() => {
+        if (partialResponse) msg.edit(makeResponse(partialResponse));
+      }, 1500);
+      const fullResponse = await api.sendMessage(message.content, {
+        timeoutMs: 5 * 60 * 1000,
+        onProgress: partial => {
+          partialResponse = partial;
+        }
+      });
+      clearInterval(interval);
+      setTimeout(() => {
+        msg.edit(makeResponse(fullResponse));
+      }, 1500);
     } catch (error) {
       console.error(error);
       await msg.edit("❌ An error occurred while processing your message.");
