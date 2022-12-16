@@ -5,7 +5,7 @@ const { OPENAI_EMAIL, OPENAI_PASSWORD } = process.env;
 if (!OPENAI_EMAIL || !OPENAI_PASSWORD) {
   throw new Error("OPENAI_EMAIL and OPENAI_PASSWORD environment variables are required.");
 }
-let api: ChatGPTAPI, processing: boolean;
+let api: ChatGPTAPIBrowser, processing: boolean;
 
 (async () => {
   api = new ChatGPTAPIBrowser({
