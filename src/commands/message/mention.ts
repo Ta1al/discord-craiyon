@@ -10,8 +10,12 @@ const command: MessageCommand = {
     if (
       settings?.channels.includes(message.channel.id) &&
       settings?.whitelistedUsers.includes(message.author.id)
-    )
+    ) {
+      if (!message.content) message.content = "Hello";
       return void chatgpt(message);
+    } else {
+      return void message.reply("❌ You are not allowed to use this bot.");
+    }
   }
 };
 
