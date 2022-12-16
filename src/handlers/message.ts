@@ -6,7 +6,7 @@ export const registeredMessageCommands = new Map<string, MessageCommand>();
   const commands = await readdir("./src/commands/message");
   for (const command of commands) {
     const { default: messageCommand } = await import(
-      `../commands/chatInput/${command.split(".")[0]}.js`
+      `../commands/message/${command.split(".")[0]}.js`
     );
     registeredMessageCommands.set(messageCommand.name, messageCommand.command);
   }
