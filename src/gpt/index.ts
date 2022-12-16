@@ -14,7 +14,6 @@ let api: ChatGPTAPIBrowser, processing: boolean;
   });
   await api.init();
 })();
-const conversation = api.getConversation();
 
 export default async function chatgpt(message: Message) {
   if (processing) return message.reply("⌛ I'm processing another message, please wait.");
@@ -23,9 +22,8 @@ export default async function chatgpt(message: Message) {
 
     const msg = await message.reply("⌛ Processing...");
     try {
-      await api.ensureAuth();
       message.channel.sendTyping();
-      const fullResponse = await conversation.sendMessage(message.content, { timeoutMs: 5 * 60 * 1000 });
+      const fullResponse = await api.sendMessage(message.content, { timeoutMs: 5 * 60 * 1000 });
 
       msg.edit(makeResponse(fullResponse));
     } catch (error) {
