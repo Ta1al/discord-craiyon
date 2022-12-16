@@ -9,8 +9,8 @@ let api: ChatGPTAPI, processing: boolean;
 
 (async () => {
   api = new ChatGPTAPIBrowser({
-    email: process.env.OPENAI_EMAIL,
-    password: process.env.OPENAI_PASSWORD
+    email: process.env.OPENAI_EMAIL!,
+    password: process.env.OPENAI_PASSWORD!
   });
   await api.init();
 })();
