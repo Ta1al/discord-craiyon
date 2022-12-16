@@ -16,10 +16,10 @@ export const registeredStringSelectComponents = new Map<string, StringSelectComp
 (async () => {
   const commands = await readdir("./src/commands/chatInput");
   for (const command of commands) {
-    const { default: ChatInputCommand } = await import(
+    const { default: chatInputCommand } = await import(
       `../commands/chatInput/${command.split(".ts")[0]}.js`
-    );
-    registeredChatInputCommands.set(ChatInputCommand.name, ChatInputCommand);
+    ) as { default: ChatInputCommand };
+    registeredChatInputCommands.set(chatInputCommand.name, chatInputCommand);
   }
 })();
 
