@@ -38,8 +38,12 @@ export default async function chatgpt(message: Message) {
         msg.edit(makeResponse(fullResponse));
       }, 1500);
     } catch (error) {
+      let { message } = error as { message: string };
       console.error(error);
-      await msg.edit("❌ An error occurred while processing your message.");
+
+      await msg.edit(
+        `❌ An error occurred while processing your message.\n\`\`\`\n${message}\`\`\``
+      );
     } finally {
       processing = false;
     }
