@@ -14,10 +14,10 @@ export const registeredButtonComponents = new Map<string, ButtonComponent>();
 export const registeredStringSelectComponents = new Map<string, StringSelectComponent>();
 
 (async () => {
-  const commands = await readdir("./src/commands/chatInput");
+  const commands = await readdir("./src/commands");
   for (const command of commands) {
     const { default: chatInputCommand } = await import(
-      `../commands/chatInput/${command.split(".ts")[0]}.js`
+      `../commands/${command.split(".")[0]}.js`
     ) as { default: ChatInputCommand };
     registeredChatInputCommands.set(chatInputCommand.name, chatInputCommand);
   }

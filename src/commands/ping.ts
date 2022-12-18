@@ -1,4 +1,4 @@
-import { ChatInputCommand } from "../../handlers/interaction.js";
+import { ChatInputCommand } from "../handlers/interaction.js";
 
 
 const command: ChatInputCommand = {
