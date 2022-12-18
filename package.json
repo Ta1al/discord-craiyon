@@ -25,6 +25,7 @@
   "homepage": "https://github.com/Ta1al/disgpt#readme",
   "dependencies": {
     "chatgpt": "^3.1.0",
+    "craiyon": "^1.0.0",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3"
   },
