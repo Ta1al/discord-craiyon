@@ -1,7 +1,6 @@
 import { ApplicationCommandOptionType } from "discord.js";
 import { ChatInputCommand } from "../handlers/interaction.js";
-import chatgpt from "../util/chatgpt.js";
-
+// import chatgpt from "../util/chatgpt.js";
 
 const command: ChatInputCommand = {
   name: "chatgpt",
