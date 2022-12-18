@@ -6,7 +6,7 @@ const { TOKEN, GUILD_ID } = process.env;
 checkEnv();
 
 const client = new Client({
-  intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages],
+  intents: [IntentsBitField.Flags.Guilds],
   allowedMentions: { parse: [], repliedUser: true }
 });
 
