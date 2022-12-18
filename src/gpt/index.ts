@@ -8,12 +8,19 @@ if (!OPENAI_EMAIL || !OPENAI_PASSWORD) {
 let api: ChatGPTAPIBrowser, processing: boolean;
 
 (async () => {
+  await newBrowser();
+})();
+setInterval(async () => {
+  await newBrowser();
+}, 1000 * 60 * 60);
+
+async function newBrowser() {
   api = new ChatGPTAPIBrowser({
     email: process.env.OPENAI_EMAIL!,
     password: process.env.OPENAI_PASSWORD!
   });
-  await api.init();
-})();
+  await api.initSession();
+}
 
 export default async function chatgpt(message: Message) {
   if (processing) return message.reply("⌛ I'm processing another message, please wait.");
@@ -30,12 +37,12 @@ export default async function chatgpt(message: Message) {
       const fullResponse = await api.sendMessage(message.content, {
         timeoutMs: 5 * 60 * 1000,
         onProgress: partial => {
-          partialResponse = partial;
+          partialResponse = partial.response;
         }
       });
       clearInterval(interval);
       setTimeout(() => {
-        msg.edit(makeResponse(fullResponse));
+        msg.edit(makeResponse(fullResponse.response));
       }, 1500);
     } catch (error) {
       let { message } = error as { message: string };
