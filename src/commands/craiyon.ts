@@ -24,7 +24,7 @@ const command: ChatInputCommand = {
   ],
   execute: async interaction => {
     await interaction.reply(
-      "<a:loading:781902642267029574> This should not take long (up to 2 minutes)..."
+      "🔃 This should not take long (up to 2 minutes)..."
     );
     const prompt = interaction.options.getString("prompt", true);
     const maxRetries = interaction.options.getInteger("retries") || 3;
