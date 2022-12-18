@@ -23,13 +23,22 @@ const command: ChatInputCommand = {
     }
   ],
   execute: async interaction => {
-    await interaction.deferReply();
+    await interaction.reply(
+      "<a:loading:781902642267029574> This should not take long (up to 2 minutes)..."
+    );
     const prompt = interaction.options.getString("prompt", true);
     const maxRetries = interaction.options.getInteger("retries") || 3;
-    const result = await craiyon.generate({ prompt, maxRetries });
-    const files: AttachmentBuilder[] = [];
-    result.images.forEach(image => files.push(new AttachmentBuilder(image.asBuffer())));
-    await interaction.editReply({ files });
+    craiyon
+      .generate({ prompt, maxRetries }) //
+      .then(async result => {
+        const files: AttachmentBuilder[] = [];
+        result.images.forEach(image => files.push(new AttachmentBuilder(image.asBuffer())));
+        return await interaction.editReply({ content: "", files });
+      })
+      .catch(async error => {
+        console.error(error);
+        return await interaction.editReply(`❌ An error occurred.\n\`\`\`\n${error.message}\`\`\``);
+      });
   }
 };
 
