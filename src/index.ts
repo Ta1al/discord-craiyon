@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { Client, IntentsBitField } from "discord.js";
+import { Client, Guild, IntentsBitField } from "discord.js";
 import interactionHandler, { registeredChatInputCommands } from "./handlers/interaction.js";
 
 const { TOKEN, GUILD_ID } = process.env;
@@ -7,13 +7,16 @@ checkEnv();
 
 const client = new Client({
   intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages],
-  allowedMentions: { parse: [], repliedUser: true },
+  allowedMentions: { parse: [], repliedUser: true }
 });
 
 client.on("ready", async client => {
   console.log(`Logged in as ${client.user.tag}!`);
-  const guild = client.guilds.cache.get(GUILD_ID!);
-  if (!guild) throw new Error("Guild not found");
+  let guild: Guild | undefined;
+  if (GUILD_ID) {
+    const guild = client.guilds.cache.get(GUILD_ID!);
+    if (!guild) throw new Error("Guild not found");
+  }
 
   const commands = Array.from(registeredChatInputCommands).map(([name, command]) => ({
     name,
@@ -23,7 +26,7 @@ client.on("ready", async client => {
     dmPermission: command.dmPermission
   }));
 
-  guild?.commands
+  (guild || client.application).commands
     .set(commands)
     .then(c =>
       console.log(
