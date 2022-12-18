@@ -1,6 +1,8 @@
-import { ApplicationCommandOptionType } from "discord.js";
+import { ApplicationCommandOptionType, AttachmentBuilder } from "discord.js";
 import { ChatInputCommand } from "../handlers/interaction.js";
+import { Client } from "craiyon";
 
+const craiyon = new Client();
 
 const command: ChatInputCommand = {
   name: "craiyon",
@@ -17,12 +19,19 @@ const command: ChatInputCommand = {
       name: "retries",
       description: "The number of times to retry if something goes wrong.",
       minValue: 0,
-      maxValue: 7,
+      maxValue: 7
     }
   ],
   execute: async interaction => {
-    await interaction.reply("Pong!");
+    await interaction.deferReply();
+    const prompt = interaction.options.getString("prompt", true);
+    const maxRetries = interaction.options.getInteger("retries") || 3;
+    const result = await craiyon.generate({ prompt, maxRetries });
+    const files: AttachmentBuilder[] = [];
+    result.images.forEach(image => files.push(new AttachmentBuilder(image.asBuffer())));
+    await interaction.editReply({ files });
   }
 };
 
 export default command;
+
