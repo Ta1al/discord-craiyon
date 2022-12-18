@@ -1,6 +1,5 @@
 import "dotenv/config";
 import { Client, IntentsBitField } from "discord.js";
-import messageHandler from "./handlers/message.js";
 import interactionHandler, { registeredChatInputCommands } from "./handlers/interaction.js";
 import mongoose, { connect } from "mongoose";
 import SettingsModel from "./database/settings.js";
@@ -44,7 +43,6 @@ client.on("ready", async client => {
     .catch(console.error);
 });
 
-client.on("messageCreate", messageHandler);
 client.on("interactionCreate", interactionHandler);
 
 client.login(TOKEN);
