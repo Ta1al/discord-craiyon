@@ -1,5 +1,5 @@
 # DisGPT
-Discord Integration for ChatGPT & Craiyon.
+Discord Integration for Craiyon (Image Generation AI).
 
 ### For self-hosting
 ##### Clone the repository
